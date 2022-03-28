@@ -6,8 +6,6 @@ import akka.actor._
 case class Terminal (id:Int, ip:String, port:Int)
 
 object Projet {
-
-   
      def main (args : Array[String]) {
           // Gestion des erreurs
           if (args.size != 1) {
@@ -23,7 +21,7 @@ object Projet {
           }
 
           var musicienlist = List[Terminal]()
-          
+
           // recuperation des adresses de tous les musiciens
           // hardcoded path name
           for(i <- 3 to 0 by -1){
