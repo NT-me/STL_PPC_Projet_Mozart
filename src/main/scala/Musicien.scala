@@ -7,14 +7,15 @@ import scala.collection.mutable
 case class Start ()
 case class Test (msg: String)
 case class ReInitAliveList()
-case class AliveActor(actorId: Int)
+case class AliveActor(actorsIds: List[Int])
+case class DeadActor(actorId: Int)
 
 class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
      // Les differents acteurs du systeme
      val displayActor: ActorRef = context.actorOf(Props[DisplayActor], name = "displayActor")
      val heartActor: ActorRef = context.actorOf(Props(new HeartActor(id, terminaux)), name = "heartActor")
-     val stethoscopeActor: ActorRef = context.actorOf(Props(new StethoscopeActor()), name = "stethoscopeActor")
+     val stethoscopeActor: ActorRef = context.actorOf(Props(new StethoscopeActor(id)), name = "stethoscopeActor")
 
      var aliveList: mutable.HashMap[Int, Boolean] = new mutable.HashMap()
 
@@ -33,12 +34,12 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
           }
 
           case ReInitAliveList => {
-           aliveList.foreach(x => aliveList.update(x._1, false)) // Re set all values on false
-           aliveList.update(id, true)
+               aliveList.foreach(x => aliveList.put(x._1, false)) // Re set all values on false
+
           }
 
-          case AliveActor (actorId) =>{
-               aliveList.update(actorId, true)
+          case AliveActor (actorsIds) =>{
+               actorsIds.foreach(actorId => aliveList.update(actorId, true))
                println(aliveList)
           }
      }

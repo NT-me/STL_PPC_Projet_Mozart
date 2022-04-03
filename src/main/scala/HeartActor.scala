@@ -13,14 +13,12 @@ case class HeartBeat ()
 class HeartActor (val parentID: Int, val terminaux:List[Terminal]) extends Actor {
   val TIME_BASE: FiniteDuration = 2 milliseconds
   val scheduler: Scheduler = context.system.scheduler
-
+  var resetCounter: Int = 0
 
        def receive: Receive = {
 
           case HeartBeat() => {
-            context.parent ! ReInitAliveList
               for(i <- terminaux.indices by 1){
-                if (i != parentID){
                   val selectionnedActor =
                     context.actorSelection(
                       "akka.tcp://MozartSystem"+
@@ -29,7 +27,6 @@ class HeartActor (val parentID: Int, val terminaux:List[Terminal]) extends Actor
                         ":" + terminaux(i).port + "/user/Musicien" +terminaux(i).id + "/stethoscopeActor")
                   selectionnedActor ! HeartSignal(parentID)
                 }
-              }
             scheduler.scheduleOnce(TIME_BASE, self, HeartBeat())
           }
      }

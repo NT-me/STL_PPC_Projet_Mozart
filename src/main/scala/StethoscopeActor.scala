@@ -2,14 +2,26 @@ package upmc.akka.leader
 
 import akka.actor._
 
+import scala.collection.mutable
+
 case class HeartSignal (id: Int)
 
-class StethoscopeActor extends Actor {
+class StethoscopeActor (parentId: Int) extends Actor {
 
-  //println(context.self.path)
+  var aliveIdsList: List[Int] = List()
+
     def receive: Receive = {
         case HeartSignal (id) => {
-               context.parent ! AliveActor(id)
+          if (parentId == id){
+            context.parent ! ReInitAliveList
+            context.parent ! AliveActor(aliveIdsList)
+            aliveIdsList = List()
+          }
+          if (!aliveIdsList.contains(id)) {
+            aliveIdsList = aliveIdsList ::: List(id)
+          }
+          println(aliveIdsList)
+
           }
      }
 }
