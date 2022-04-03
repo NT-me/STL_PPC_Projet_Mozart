@@ -25,7 +25,8 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
      val db: ActorRef = context.actorOf(Props(new DataBaseActor()), "DataBaseActor")
      val player: ActorRef = context.actorOf(Props(new PlayerActor()),"PlayerActor")
      val provider: ActorRef = context.actorOf(Props(new Provider(db)),"Provider")
-     val conductor: ActorRef = context.actorOf(Props(new Conductor(provider, player)),"Conductor")
+     val conductor: ActorRef = context.actorOf(Props(new Conductor(provider, terminaux, id)),"Conductor")
+     val conductorListenerActor: ActorRef = context.actorOf(Props(new ConductorListenerActor(id, player)),"conductorListenerActor")
 
      var aliveList: mutable.HashMap[Int, Boolean] = new mutable.HashMap() // Updated list of all alive actors
      var conductorId: Int = -1 // Conductor id, if -1 not init.
@@ -60,7 +61,7 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
                println("Le nvx chef d'orcheste est " + conductorId)
 
                if (conductorId == id){
-                    scheduler.scheduleOnce(MUSIC_TIME, conductor, StartGame())
+                    scheduler.scheduleOnce(MUSIC_TIME, conductor, StartGame(aliveList))
                }
           }
 

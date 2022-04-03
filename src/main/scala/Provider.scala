@@ -14,8 +14,6 @@ import akka.actor.{Props, Actor, ActorRef, ActorSystem}
 
 import DataBaseActor._
 
-case class Message (content:String)
-
 case class getMeasure(result: Int)
 case class measures(num: Int)
 
