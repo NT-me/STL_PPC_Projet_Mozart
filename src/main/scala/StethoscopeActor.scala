@@ -20,8 +20,6 @@ class StethoscopeActor (parentId: Int) extends Actor {
           if (!aliveIdsList.contains(id)) {
             aliveIdsList = aliveIdsList ::: List(id)
           }
-          println(aliveIdsList)
-
-          }
+        }
      }
 }
