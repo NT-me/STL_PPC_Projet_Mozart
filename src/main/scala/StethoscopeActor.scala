@@ -9,8 +9,7 @@ class StethoscopeActor extends Actor {
   //println(context.self.path)
     def receive: Receive = {
         case HeartSignal (id) => {
-               println(id)
+               context.parent ! AliveActor(id)
           }
-
      }
 }
