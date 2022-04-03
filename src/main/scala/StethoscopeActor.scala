@@ -12,14 +12,17 @@ class StethoscopeActor (parentId: Int) extends Actor {
 
     def receive: Receive = {
         case HeartSignal (id) => {
+
+          if (!aliveIdsList.contains(id)) {
+            aliveIdsList = aliveIdsList ::: List(id)
+          }
+
           if (parentId == id){
             context.parent ! ReInitAliveList
             context.parent ! AliveActor(aliveIdsList)
             aliveIdsList = List()
           }
-          if (!aliveIdsList.contains(id)) {
-            aliveIdsList = aliveIdsList ::: List(id)
-          }
+
         }
      }
 }
