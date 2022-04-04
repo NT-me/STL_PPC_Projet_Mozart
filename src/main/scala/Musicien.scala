@@ -13,6 +13,7 @@ case class AliveActor(actorsIds: List[Int])
 case class DeadActor(actorId: Int)
 case class SetNewConductor(newConductorId: Int)
 case class ComeOnMaestro()
+case class TimeOutChecker()
 
 class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
@@ -33,9 +34,14 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
      var conductorId: Int = -1 // Conductor id, if -1 not init.
 
      val MUSIC_TIME: FiniteDuration = 1800 milliseconds
+     val TIMEOUT_TIME: FiniteDuration = 20 seconds
      val scheduler: Scheduler = context.system.scheduler
 
+     // Scheduler
+     scheduler.scheduleOnce(TIMEOUT_TIME, self, TimeOutChecker())
+
      def receive: Receive = {
+
 
           // Initialisation
           case Start => {
@@ -70,6 +76,17 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
           case ComeOnMaestro() =>{
                if (conductorId == id){
                     scheduler.scheduleOnce(MUSIC_TIME, conductor, StartGame(aliveList))
+               }
+          }
+
+          case TimeOutChecker() => {
+               var truelyAlive: List[Int] = List()
+
+               aliveList.iterator.filter(x => x._2).foreach(x => truelyAlive = truelyAlive ::: List(x._1))
+
+               if (truelyAlive.size <= 1){
+                    println("Nobody love me :(")
+                    self ! PoisonPill
                }
           }
      }
