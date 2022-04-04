@@ -9,6 +9,8 @@ case class HeartSignal (id: Int)
 class StethoscopeActor (parentId: Int) extends Actor {
 
   var aliveIdsList: List[Int] = List()
+  var stepCounter = 0
+  val BUFFER_TIME_OUT = 2
 
     def receive: Receive = {
         case HeartSignal (id) => {
@@ -18,9 +20,14 @@ class StethoscopeActor (parentId: Int) extends Actor {
           }
 
           if (parentId == id){
-            context.parent ! ReInitAliveList
-            context.parent ! AliveActor(aliveIdsList)
-            aliveIdsList = List()
+            stepCounter += 1
+            if (stepCounter > BUFFER_TIME_OUT) {
+              context.parent ! ReInitAliveList
+              context.parent ! AliveActor(aliveIdsList)
+
+              aliveIdsList = List()
+              stepCounter = 0
+            }
           }
 
         }
