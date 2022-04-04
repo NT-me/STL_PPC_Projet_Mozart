@@ -12,6 +12,7 @@ case class ReInitAliveList()
 case class AliveActor(actorsIds: List[Int])
 case class DeadActor(actorId: Int)
 case class SetNewConductor(newConductorId: Int)
+case class ComeOnMaestro()
 
 class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
@@ -61,10 +62,15 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
                println("Le nvx chef d'orcheste est " + conductorId)
 
                if (conductorId == id){
-                    scheduler.scheduleOnce(MUSIC_TIME, conductor, StartGame(aliveList))
+                    println(id + " Prend les manettes !")
+                    conductor ! StartGame(aliveList)
                }
           }
 
-
+          case ComeOnMaestro() =>{
+               if (conductorId == id){
+                    scheduler.scheduleOnce(MUSIC_TIME, conductor, StartGame(aliveList))
+               }
+          }
      }
 }

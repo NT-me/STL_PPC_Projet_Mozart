@@ -12,6 +12,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import DataBaseActor._
 
 import scala.collection.mutable
+import scala.language.postfixOps
 
 case class giveMeasure(chords: List [Chord])
 case class StartGame(aliveList: mutable.HashMap[Int, Boolean])
@@ -29,28 +30,27 @@ class Conductor(provider: ActorRef, terminaux:List[Terminal], parentID: Int) ext
 
           case giveMeasure(chords: List [Chord]) =>{
                var preSelectedList: List[Int] = List()
-               aliveList.filter(x => x._2).foreach(u => preSelectedList = preSelectedList ::: List(u._1))
+               aliveList.filter(x => x._2 && x._1 != parentID).foreach(u => preSelectedList = preSelectedList ::: List(u._1))
 
                val r = scala.util.Random
-
                var selectedId = parentID
 
-               while(selectedId == parentID) {
+               if (preSelectedList.nonEmpty) {
                     selectedId = preSelectedList(r.nextInt(preSelectedList.size))
-               }
 
-               if(selectedId != parentID) {
-                    println(selectedId + " A vous de jouer")
-                    terminaux.filter(u => u.id == selectedId)
+
+                    val selectedTerminal = terminaux.filter(u => u.id == selectedId).head
+                    println(selectedTerminal + " A vous de jouer")
 
                     val selectionnedActor =
                          context.actorSelection(
                               "akka.tcp://MozartSystem" +
-                                terminaux.head.id +
-                                "@" + terminaux.head.ip.replace("\"", "") +
-                                ":" + terminaux.head.port + "/user/Musicien" + terminaux.head.id + "/conductorListenerActor")
+                                selectedTerminal.id +
+                                "@" + selectedTerminal.ip.replace("\"", "") +
+                                ":" + selectedTerminal.port + "/user/Musicien" + selectedTerminal.id + "/conductorListenerActor")
 
                     selectionnedActor ! PlayMeasure(chords)
+                    context.parent ! ComeOnMaestro()
                }
           }
 
