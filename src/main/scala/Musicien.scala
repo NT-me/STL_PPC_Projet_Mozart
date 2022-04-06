@@ -88,6 +88,9 @@ class Musicien (val id:Int, val terminaux:List[Terminal]) extends Actor {
                     println("Nobody love me :(")
                     self ! PoisonPill
                }
+               else{
+                    scheduler.scheduleOnce(TIMEOUT_TIME, self, TimeOutChecker())
+               }
           }
      }
 }
